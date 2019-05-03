@@ -18,7 +18,7 @@ export class WelcomeScene extends Phaser.Scene {
 
     preload(): void {
         this.load.setBaseURL("https://nnset.github.io/fearfighter/");
-        this.load.spritesheet('idle', 'assets/MainCharacter/Animation/png/idle.png', { frameWidth: 140, frameHeight: 80 });
+        this.load.spritesheet('idle', 'assets/MainCharacter/animations/png/idle.png', { frameWidth: 140, frameHeight: 80 });
     }
     
     create(): void {
