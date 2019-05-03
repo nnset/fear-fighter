@@ -1,5 +1,6 @@
 # Logs
 deploy.sh
+publish_to_github.sh
 logs
 *.log
 npm-debug.log*

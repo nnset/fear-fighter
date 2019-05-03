@@ -4,21 +4,23 @@ import { MainCharacter } from "../characters/mainCharacter";
 export class WelcomeScene extends Phaser.Scene {
 
     mainTitle: Phaser.GameObjects.Text;
-    mainCharacter: Phaser.GameObjects.Sprite;
+    mainCharacter: MainCharacter;
 
     constructor() {
         super({
             key: "WelcomeScene"
         });
+        
+        this.mainCharacter = new MainCharacter(this, 150, 200, 2);
     }
 
     init(params): void {
-        // TODO
+        
     }
 
     preload(): void {
-        this.load.setBaseURL("https://nnset.github.io/fearfighter/");
-        this.load.spritesheet('idle', 'assets/MainCharacter/animations/png/idle.png', { frameWidth: 140, frameHeight: 80 });
+        this.load.setBaseURL('http://fearfighter.nnset.com/');
+        this.mainCharacter.preload();
     }
     
     create(): void {
@@ -34,11 +36,27 @@ export class WelcomeScene extends Phaser.Scene {
             { font: '24px Courier', fill: '#FBFBAC' }
         );
 
-        this.mainCharacter = this.add.sprite(50, 50, 'idle', 0);       
-        this.mainCharacter.anims.load('idle');
-        this.mainCharacter.play('idle');
+        this.mainCharacter.create();
+
+        this.time.addEvent({
+            delay: 3000,
+            callback: this.shootMainCharacter,
+            repeat: 3
+        });
+
+        this.time.addEvent({
+            delay: 10000,
+            callback: this.killMainCharacter
+        });
     }
 
+    killMainCharacter = () => {
+        this.mainCharacter.die();
+    }
+
+    shootMainCharacter = () => {
+        this.mainCharacter.shoot();
+    }
 
     update(time): void {
         // TODO
