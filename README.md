@@ -1,13 +1,17 @@
 # Fear Fighter
 A shoot 'em up game build with [Phaser.io](https://pasher.io) using pixel art assets. It is a one level game, I'm just trying to learn and have some fun ;-) .
 
-# Installation
+# Development
 
 1. [Install Node.js](https://github.com/nodesource/distributions/blob/master/README.md)
 2. Run `npm install`
 3. Run `npm start`
 
 Game will be available at http://127.0.0.1:8081/
+
+# Play online
+
+Game is [available here](https://nnset.github.io/fearfighter)
 
 # Thanks
 
