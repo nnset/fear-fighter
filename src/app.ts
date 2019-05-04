@@ -1,5 +1,6 @@
 import 'phaser';
 import { WelcomeScene } from './scenes/welcomeScene';
+import { CityScene } from './scenes/cityScene';
 
 const renderConfig: RenderConfig = {
     pixelArt: true,
@@ -8,8 +9,8 @@ const renderConfig: RenderConfig = {
 
 const config: GameConfig = {
     title: 'FearFighter',
-    width: 800,
-    height: 600,
+    width: 1211,
+    height: 667,
     parent: 'game',
     backgroundColor: '#18216D',
     zoom: 1,
@@ -20,7 +21,7 @@ const config: GameConfig = {
         }
     },
     render: renderConfig,
-    scene: [WelcomeScene]    
+    scene: [CityScene]    
 };
 
 export class FearFighter extends Phaser.Game {

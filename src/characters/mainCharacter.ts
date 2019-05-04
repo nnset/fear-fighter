@@ -7,8 +7,8 @@ export class MainCharacter extends Phaser.GameObjects.Group {
     readonly DEATH = 'death';
     readonly SHOOT = 'shoot';
     readonly RUN = 'run';
-    readonly VERTICAL_SPEED = 2;
-    readonly HORIZONTAL_SPEED = 2;
+    readonly VERTICAL_SPEED = 3;
+    readonly HORIZONTAL_SPEED = 3;
     readonly FACING_RIGHT = 1;
     readonly FACING_LEFT = 2;
 

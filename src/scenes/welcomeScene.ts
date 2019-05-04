@@ -22,6 +22,8 @@ export class WelcomeScene extends Phaser.Scene {
 
     preload(): void {
         this.load.setBaseURL('http://fearfighter.nnset.com/');
+        this.load.image('city', 'assets/Scenes/city.jpg');
+
         this.mainCharacter.preload();
     }
     
@@ -31,6 +33,9 @@ export class WelcomeScene extends Phaser.Scene {
 
         const viewportWidth = parseInt(this.game.config.width.toString());
         const viewportHeight = parseInt(this.game.config.height.toString());
+
+        this.add.image(0, 0, 'city').setOrigin(0, 0).setScale(1);
+
         const title = 'Fear Fighter';
         const titleSize = title.length * 7;
 
