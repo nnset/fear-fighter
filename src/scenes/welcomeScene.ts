@@ -5,6 +5,8 @@ export class WelcomeScene extends Phaser.Scene {
 
     mainTitle: Phaser.GameObjects.Text;
     mainCharacter: MainCharacter;
+    cursors: Phaser.Input.Keyboard.CursorKeys;
+    shootKey: Phaser.Input.Keyboard.Key;
 
     constructor() {
         super({
@@ -24,6 +26,9 @@ export class WelcomeScene extends Phaser.Scene {
     }
     
     create(): void {
+        this.cursors = this.input.keyboard.createCursorKeys();
+        this.shootKey = this.input.keyboard.addKey('X');
+
         const viewportWidth = parseInt(this.game.config.width.toString());
         const viewportHeight = parseInt(this.game.config.height.toString());
         const title = 'Fear Fighter';
@@ -37,17 +42,6 @@ export class WelcomeScene extends Phaser.Scene {
         );
 
         this.mainCharacter.create();
-
-        this.time.addEvent({
-            delay: 3000,
-            callback: this.shootMainCharacter,
-            repeat: 3
-        });
-
-        this.time.addEvent({
-            delay: 10000,
-            callback: this.killMainCharacter
-        });
     }
 
     killMainCharacter = () => {
@@ -59,6 +53,20 @@ export class WelcomeScene extends Phaser.Scene {
     }
 
     update(time): void {
-        // TODO
+        if (this.shootKey.isDown) {
+            this.mainCharacter.shoot();
+        } else{
+            if (this.cursors.left.isDown) {
+                this.mainCharacter.run();
+            } else if (this.cursors.right.isDown) {
+                this.mainCharacter.run();
+            } else if (this.cursors.up.isDown) {
+                this.mainCharacter.run();
+            } else if (this.cursors.down.isDown) {
+                this.mainCharacter.run();
+            } else {
+                this.mainCharacter.idle();
+            }    
+        }
     }
 };
