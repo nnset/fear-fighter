@@ -21,7 +21,10 @@ const config: GameConfig = {
         }
     },
     render: renderConfig,
-    scene: [CityScene]    
+    scene: [CityScene],
+    fps: {
+        target: 16
+    }
 };
 
 export class FearFighter extends Phaser.Game {

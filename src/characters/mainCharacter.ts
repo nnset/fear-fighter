@@ -2,7 +2,7 @@ import "phaser";
 
 import { MuzzleFlare } from "../objects/muzzleFlare";
 
-export class MainCharacter extends Phaser.GameObjects.Group {
+export class MainCharacter {
     readonly IDLE = 'idle';
     readonly DEATH = 'death';
     readonly SHOOT = 'shoot';
@@ -22,6 +22,7 @@ export class MainCharacter extends Phaser.GameObjects.Group {
     scale: number;
     frameRate: number;
     facingTo: number;
+    scene: Phaser.Scene;
 
 
     constructor(
@@ -31,7 +32,7 @@ export class MainCharacter extends Phaser.GameObjects.Group {
         scale: number = 1, 
         frameRate: number = 8
     ) {
-        super(scene);
+        this.scene = scene;
         this.x = x;
         this.y = y;
         this.scale = scale;
