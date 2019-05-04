@@ -55,18 +55,40 @@ export class WelcomeScene extends Phaser.Scene {
     update(time): void {
         if (this.shootKey.isDown) {
             this.mainCharacter.shoot();
-        } else{
+        } else {
+            this.moveMainCharacter();
+        }
+    }
+
+    private moveMainCharacter(): void 
+    {
+        if (this.anyMovementKeIsPressed()) {
             if (this.cursors.left.isDown) {
                 this.mainCharacter.run();
-            } else if (this.cursors.right.isDown) {
+                this.mainCharacter.moveLeft();
+            } 
+            
+            if (this.cursors.right.isDown) {
                 this.mainCharacter.run();
-            } else if (this.cursors.up.isDown) {
+                this.mainCharacter.moveRight();
+            
+            } if (this.cursors.up.isDown) {
                 this.mainCharacter.run();
-            } else if (this.cursors.down.isDown) {
+                this.mainCharacter.moveUp();
+            } 
+            
+            if (this.cursors.down.isDown) {
                 this.mainCharacter.run();
-            } else {
-                this.mainCharacter.idle();
-            }    
+                this.mainCharacter.moveDown();
+            }                 
+        } else {
+            this.mainCharacter.idle();
         }
+    }
+
+    private anyMovementKeIsPressed(): boolean
+    {
+        return this.cursors.up.isDown  || this.cursors.down.isDown ||
+               this.cursors.left.isDown || this.cursors.right.isDown;
     }
 };

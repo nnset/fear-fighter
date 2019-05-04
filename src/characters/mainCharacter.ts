@@ -7,6 +7,10 @@ export class MainCharacter extends Phaser.GameObjects.Group {
     readonly DEATH = 'death';
     readonly SHOOT = 'shoot';
     readonly RUN = 'run';
+    readonly VERTICAL_SPEED = 2;
+    readonly HORIZONTAL_SPEED = 2;
+    readonly FACING_RIGHT = 1;
+    readonly FACING_LEFT = 2;
 
     private character: Phaser.GameObjects.Sprite;
     private regularMuzzleFlare: MuzzleFlare;
@@ -17,6 +21,7 @@ export class MainCharacter extends Phaser.GameObjects.Group {
     y: number;
     scale: number;
     frameRate: number;
+    facingTo: number;
 
 
     constructor(
@@ -31,20 +36,21 @@ export class MainCharacter extends Phaser.GameObjects.Group {
         this.y = y;
         this.scale = scale;
         this.state = this.IDLE;
-        this.animations = [
-            {key: this.IDLE, repeat: -1},
-            {key: this.DEATH, repeat: 0},
-            {key: this.SHOOT, repeat: 0},
-            {key: this.RUN, repeat: -1},
-        ];
         this.frameRate = frameRate;
+        this.facingTo = this.FACING_RIGHT;
+
+        this.animations = [
+            {key: this.IDLE, repeat: -1, frameRate: this.frameRate},
+            {key: this.DEATH, repeat: 0, frameRate: this.frameRate},
+            {key: this.SHOOT, repeat: 0, frameRate: this.frameRate * 2},
+            {key: this.RUN, repeat: -1 , frameRate: this.frameRate},
+        ];
 
         this.regularMuzzleFlare = new MuzzleFlare(
             this.scene, 
             0, 
             0, 
-            this.scale * 0.75, 
-            this.frameRate
+            this.scale * 0.75
         );
     }
 
@@ -78,7 +84,7 @@ export class MainCharacter extends Phaser.GameObjects.Group {
     private animationSettings(animation: AnimationSettings): object {
         return {
             key: animation.key, 
-            frameRate: this.frameRate, 
+            frameRate: animation.frameRate, 
             frames: this.character.anims.animationManager.generateFrameNumbers(animation.key, {}),
             repeat: animation.repeat
         }
@@ -96,13 +102,19 @@ export class MainCharacter extends Phaser.GameObjects.Group {
             return;
         }
 
+        this.state = this.IDLE;
+
         if (this.state != this.SHOOT) {
-            this.state = this.SHOOT;
+            this.state = this.SHOOT;           
+            let muzzleFlareX = this.character.x + 20;
+            
+            if (this.facingTo === this.FACING_LEFT) {
+               muzzleFlareX = this.character.x - 20;
+            }
+
             this.character.anims.play(this.SHOOT);
-            this.regularMuzzleFlare.shoot(
-                this.character.x + 20,
-                this.character.y
-            );
+
+            this.regularMuzzleFlare.show(muzzleFlareX, this.character.y, this.facingTo);
         }
     }
 
@@ -133,18 +145,53 @@ export class MainCharacter extends Phaser.GameObjects.Group {
         }
     }
 
-    public isDead(): boolean{
+    public isDead(): boolean {
         return this.state === this.DEATH;
+    }
+
+    public moveRight(): void {
+        if (!this.shootInProgress()) {
+            this.x += this.HORIZONTAL_SPEED;
+            
+            if (this.facingTo !== this.FACING_RIGHT) {
+                this.character.scaleX *= -1;
+            }
+
+            this.facingTo = this.FACING_RIGHT;
+            this.character.x = this.x;
+        }
+    }
+
+    public moveLeft(): void {
+        if (!this.shootInProgress()) {
+            this.x -= this.HORIZONTAL_SPEED;
+            
+            if (this.facingTo !== this.FACING_LEFT) {
+                this.character.scaleX *= -1;
+            }
+
+            this.facingTo = this.FACING_LEFT;
+            this.character.x = this.x;
+        }
+    }
+
+    public moveUp(): void {
+        if (!this.shootInProgress()) {
+            this.y -= this.VERTICAL_SPEED;
+            this.character.y = this.y;
+        }
+    }
+
+    public moveDown(): void {
+        if (!this.shootInProgress()) {
+            this.y += this.VERTICAL_SPEED;
+            this.character.y = this.y;
+        }
     }
 };
 
 declare type AnimationSettings = {
-    /**
-     * The key for the animation
-     */
+    frameRate: number;
     key: string;
-    /**
-     * How many times does the animation repeat. -1 => forever
-     */
-    repeat: number;
+    repeat: number; // -1 => forever
 };

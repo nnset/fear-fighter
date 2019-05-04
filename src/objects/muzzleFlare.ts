@@ -2,20 +2,25 @@ import "phaser";
 
 export class MuzzleFlare extends Phaser.GameObjects.Group {
 
+    readonly FACING_RIGHT = 1;
+    readonly FACING_LEFT = 2;
+
     sprite: Phaser.GameObjects.Sprite;
     scale: number;
     frameRate: number;
+    facingTo: number;
 
     constructor(
         scene: Phaser.Scene, 
         x: number = 0,
         y: number = 0, 
         scale: number = 1, 
-        frameRate: number = 8
+        frameRate: number = 16
     ) {
         super(scene);
         this.scale = scale;
         this.frameRate = frameRate;
+        this.facingTo = this.FACING_RIGHT;
     }
 
     public preload(): void {
@@ -42,8 +47,14 @@ export class MuzzleFlare extends Phaser.GameObjects.Group {
         this.sprite.anims.load('regularMuzzleFlare');
     }
 
-    public shoot(x: number, y:number): void {
+    public show(x: number, y:number, orientation: number = this.FACING_RIGHT): void {
         this.sprite.visible = true;
+
+        if (orientation != this.facingTo) {
+            this.sprite.scaleX *= -1;
+        }
+
+        this.facingTo = orientation;
         this.sprite.x = x;
         this.sprite.y = y;
         this.sprite.anims.play('regularMuzzleFlare');

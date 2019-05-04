@@ -1,5 +1,5 @@
-import "phaser";
-import { WelcomeScene } from "./scenes/welcomeScene";
+import 'phaser';
+import { WelcomeScene } from './scenes/welcomeScene';
 
 const renderConfig: RenderConfig = {
     pixelArt: true,
@@ -7,16 +7,16 @@ const renderConfig: RenderConfig = {
 }
 
 const config: GameConfig = {
-    title: "FearFighter",
+    title: 'FearFighter',
     width: 800,
     height: 600,
-    parent: "game",
-    backgroundColor: "#18216D",
+    parent: 'game',
+    backgroundColor: '#18216D',
     zoom: 1,
     physics: {
-        default: "arcade",
+        default: 'arcade',
         arcade: {
-            debug: false
+            debug: true
         }
     },
     render: renderConfig,
