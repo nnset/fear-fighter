@@ -3,6 +3,7 @@ import "phaser";
 export class Enemy {
     static readonly TYPE_BEING_DIFFERENT = 'BeingDifferent';
     static readonly TYPE_FEAR_OF_DARK = 'FearOfDark';
+    static readonly TYPE_FEAR_OF_PUBLIC_SPEAKING = 'FearOfPublicSpeaking';
     
     readonly IDLE = 'idle';
     readonly DEATH = 'death';

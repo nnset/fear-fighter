@@ -29,6 +29,7 @@ export class CityScene extends Phaser.Scene {
 
         new Enemy(this, Enemy.TYPE_BEING_DIFFERENT, 120, 475).preload();
         new Enemy(this, Enemy.TYPE_FEAR_OF_DARK, 120, 475).preload();
+        new Enemy(this, Enemy.TYPE_FEAR_OF_PUBLIC_SPEAKING, 120, 475).preload();
     }
     
     create(): void {
@@ -49,6 +50,7 @@ export class CityScene extends Phaser.Scene {
 
        this.createEnemies(3, Enemy.TYPE_BEING_DIFFERENT);
        this.createEnemies(3, Enemy.TYPE_FEAR_OF_DARK);
+       this.createEnemies(3, Enemy.TYPE_FEAR_OF_PUBLIC_SPEAKING);
        
        this.mainCharacter.create();
     }
