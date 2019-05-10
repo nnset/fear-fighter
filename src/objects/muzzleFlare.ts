@@ -1,6 +1,6 @@
 import "phaser";
 
-export class MuzzleFlare extends Phaser.GameObjects.Group {
+export class MuzzleFlare extends Phaser.GameObjects.GameObject {
 
     readonly FACING_RIGHT = 1;
     readonly FACING_LEFT = 2;
@@ -17,7 +17,7 @@ export class MuzzleFlare extends Phaser.GameObjects.Group {
         scale: number = 1, 
         frameRate: number = 16
     ) {
-        super(scene);
+        super(scene, 'MuzzleFlare');
         this.scale = scale;
         this.frameRate = frameRate;
         this.facingTo = this.FACING_RIGHT;

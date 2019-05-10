@@ -1,6 +1,6 @@
 import "phaser";
 
-export class Enemy {
+export class Enemy extends Phaser.GameObjects.GameObject {
     static readonly TYPE_BEING_DIFFERENT = 'BeingDifferent';
     static readonly TYPE_FEAR_OF_DARK = 'FearOfDark';
     static readonly TYPE_FEAR_OF_PUBLIC_SPEAKING = 'FearOfPublicSpeaking';
@@ -17,7 +17,7 @@ export class Enemy {
 
     private character: Phaser.GameObjects.Sprite;
     private animations: Array<AnimationSettings>;
-    private state: string;
+    private animationState: string;
 
     x: number;
     y: number;
@@ -25,7 +25,6 @@ export class Enemy {
     frameRate: number;
     facingTo: number;
     skin: string;
-    scene: Phaser.Scene;
 
     constructor(
         scene: Phaser.Scene, 
@@ -35,11 +34,12 @@ export class Enemy {
         scale: number = 1, 
         frameRate: number = 8
     ) {
+        super(scene, 'enemy');
         this.scene = scene;
         this.x = x;
         this.y = y;
         this.scale = scale;
-        this.state = this.IDLE;
+        this.animationState = this.IDLE;
         this.frameRate = frameRate;
         this.facingTo = this.FACING_RIGHT;
         this.skin = skin;
@@ -84,8 +84,8 @@ export class Enemy {
     }
 
     public die(): void {
-        if (this.state != this.DEATH) {
-            this.state = this.DEATH;
+        if (this.animationState != this.DEATH) {
+            this.animationState = this.DEATH;
             this.character.anims.play(this.skin+this.DEATH);
         }
     }
@@ -95,8 +95,8 @@ export class Enemy {
             return;
         }
 
-        if (this.state != this.RUN) {
-            this.state = this.RUN;
+        if (this.animationState != this.RUN) {
+            this.animationState = this.RUN;
             this.character.anims.play(this.skin+this.RUN);
         }
     }
@@ -106,14 +106,14 @@ export class Enemy {
             return;
         }
         
-        if (this.state != this.IDLE) {
-            this.state = this.IDLE;
+        if (this.animationState != this.IDLE) {
+            this.animationState = this.IDLE;
             this.character.anims.play(this.skin+this.IDLE);
         }
     }
 
     public isDead(): boolean {
-        return this.state === this.DEATH;
+        return this.animationState === this.DEATH;
     }
 
     public move(): void {
