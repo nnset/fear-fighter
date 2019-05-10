@@ -8,23 +8,21 @@ export class Enemy extends Phaser.GameObjects.GameObject {
     readonly IDLE = 'idle';
     readonly DEATH = 'death';
     readonly RUN = 'run';
-
-    readonly VERTICAL_SPEED = 1;
-    readonly HORIZONTAL_SPEED = 1;
-
+    readonly VERTICAL_SPEED = 200;
+    readonly HORIZONTAL_SPEED = 200;
     readonly FACING_RIGHT = 1;
     readonly FACING_LEFT = 2;
 
-    private character: Phaser.GameObjects.Sprite;
+    private sprite: Phaser.GameObjects.Sprite;
     private animations: Array<AnimationSettings>;
     private animationState: string;
 
-    x: number;
-    y: number;
-    scale: number;
-    frameRate: number;
-    facingTo: number;
-    skin: string;
+    private intialX: number;
+    private initialY: number;
+    private scale: number;
+    private frameRate: number;
+    private facingTo: number;
+    private skin: string;
 
     constructor(
         scene: Phaser.Scene, 
@@ -36,8 +34,8 @@ export class Enemy extends Phaser.GameObjects.GameObject {
     ) {
         super(scene, 'enemy');
         this.scene = scene;
-        this.x = x;
-        this.y = y;
+        this.intialX = x;
+        this.initialY = y;
         this.scale = scale;
         this.animationState = this.IDLE;
         this.frameRate = frameRate;
@@ -61,16 +59,25 @@ export class Enemy extends Phaser.GameObjects.GameObject {
     }
 
     public create(): void {
-        this.character = this.scene.add.sprite(this.x, this.y, this.IDLE, 0).setScale(this.scale);
+        this.sprite = this.scene.add.sprite(this.intialX, this.initialY, this.IDLE, 0).setScale(this.scale);
+        this.scene.physics.world.enable(this.sprite);
+        //Seems that Physics body does not use sprite's scale in order to set its dimensions.
+        this.spritePhysicsBody().width  *= this.scale;
+        this.spritePhysicsBody().height *= this.scale;
+
         this.createAnimations();
 
-        this.character.anims.play(this.skin+this.RUN);
+        this.sprite.anims.play(this.skin+this.IDLE);
+    }
+
+    private spritePhysicsBody(): Phaser.Physics.Arcade.Body {
+        return (<Phaser.Physics.Arcade.Body>this.sprite.body);
     }
 
     private createAnimations(): void {
         this.animations.forEach(animation => {
-            this.character.anims.animationManager.create(this.animationSettings(animation));
-            this.character.anims.load(animation.key);
+            this.sprite.anims.animationManager.create(this.animationSettings(animation));
+            this.sprite.anims.load(animation.key);
         });
     }
 
@@ -78,7 +85,7 @@ export class Enemy extends Phaser.GameObjects.GameObject {
         return {
             key: animation.key, 
             frameRate: animation.frameRate, 
-            frames: this.character.anims.animationManager.generateFrameNumbers(animation.key, {}),
+            frames: this.sprite.anims.animationManager.generateFrameNumbers(animation.key, {}),
             repeat: animation.repeat
         }
     }
@@ -86,18 +93,9 @@ export class Enemy extends Phaser.GameObjects.GameObject {
     public die(): void {
         if (this.animationState != this.DEATH) {
             this.animationState = this.DEATH;
-            this.character.anims.play(this.skin+this.DEATH);
-        }
-    }
-
-    public run(): void {
-        if (this.isDead()) {
-            return;
-        }
-
-        if (this.animationState != this.RUN) {
-            this.animationState = this.RUN;
-            this.character.anims.play(this.skin+this.RUN);
+            this.sprite.anims.play(this.skin+this.DEATH);
+            this.spritePhysicsBody().setVelocityX(0);
+            this.spritePhysicsBody().setVelocityY(0);
         }
     }
 
@@ -108,32 +106,14 @@ export class Enemy extends Phaser.GameObjects.GameObject {
         
         if (this.animationState != this.IDLE) {
             this.animationState = this.IDLE;
-            this.character.anims.play(this.skin+this.IDLE);
+            this.sprite.anims.play(this.skin+this.IDLE);
+            this.spritePhysicsBody().setVelocityX(0);
+            this.spritePhysicsBody().setVelocityY(0);            
         }
     }
 
     public isDead(): boolean {
         return this.animationState === this.DEATH;
-    }
-
-    public move(): void {
-        if (this.facingTo === this.FACING_RIGHT) {
-            this.x += this.HORIZONTAL_SPEED;
-        } else {
-            this.x -= this.HORIZONTAL_SPEED;
-        }
-
-        this.character.x = this.x;
-    }
-
-    public changeOrientation() {
-        if (this.facingTo === this.FACING_RIGHT) {
-            this.facingTo = this.FACING_LEFT;
-        } else {
-            this.facingTo = this.FACING_RIGHT;
-        }
-
-        this.character.scaleX *= -1;
     }
 };
 
