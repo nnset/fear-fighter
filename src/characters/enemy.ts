@@ -24,12 +24,15 @@ export class Enemy extends Phaser.GameObjects.GameObject {
     private facingTo: number;
     private skin: string;
 
+    public id: integer;
+
     constructor(
         scene: Phaser.Scene, 
         skin: string,
         x: number = 0, 
         y: number = 0, 
         scale: number = 1, 
+        id: integer = 1,        
         frameRate: number = 8
     ) {
         super(scene, 'enemy');
@@ -41,6 +44,8 @@ export class Enemy extends Phaser.GameObjects.GameObject {
         this.frameRate = frameRate;
         this.facingTo = this.FACING_RIGHT;
         this.skin = skin;
+        this.name = 'enemy';
+        this.id = id;
 
         this.animations = [
             {key: this.skin+this.IDLE,  assetKey: this.IDLE, repeat: -1, frameRate: this.frameRate},
@@ -61,6 +66,7 @@ export class Enemy extends Phaser.GameObjects.GameObject {
     public create(): void {
         this.sprite = this.scene.add.sprite(this.intialX, this.initialY, this.IDLE, 0).setScale(this.scale);
         this.scene.physics.world.enable(this.sprite);
+        this.sprite.name = ''+this.id;
         //Seems that Physics body does not use sprite's scale in order to set its dimensions.
         this.spritePhysicsBody().width  *= this.scale;
         this.spritePhysicsBody().height *= this.scale;
@@ -72,6 +78,10 @@ export class Enemy extends Phaser.GameObjects.GameObject {
 
     private spritePhysicsBody(): Phaser.Physics.Arcade.Body {
         return (<Phaser.Physics.Arcade.Body>this.sprite.body);
+    }
+
+    public getSprite(): Phaser.GameObjects.Sprite {
+        return this.sprite;
     }
 
     private createAnimations(): void {
@@ -90,12 +100,13 @@ export class Enemy extends Phaser.GameObjects.GameObject {
         }
     }
 
-    public die(): void {
+    public kill(): void {
         if (this.animationState != this.DEATH) {
             this.animationState = this.DEATH;
             this.sprite.anims.play(this.skin+this.DEATH);
             this.spritePhysicsBody().setVelocityX(0);
             this.spritePhysicsBody().setVelocityY(0);
+            this.scene.physics.world.disable(this.sprite);
         }
     }
 
