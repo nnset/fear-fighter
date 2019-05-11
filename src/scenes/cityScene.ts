@@ -4,7 +4,6 @@ import { Enemy } from '../characters/enemy';
 
 export class CityScene extends Phaser.Scene {
 
-    private mainTitle: Phaser.GameObjects.Text;
     private mainCharacter: MainCharacter;
     private cursors: Phaser.Input.Keyboard.CursorKeys;
     private shootKey: Phaser.Input.Keyboard.Key;
@@ -12,6 +11,7 @@ export class CityScene extends Phaser.Scene {
     private bulletsFacingRight: Phaser.Physics.Arcade.Group;
     private bulletsFacingleft: Phaser.Physics.Arcade.Group;
     private enemiesPhysics: Phaser.Physics.Arcade.Group;
+    private seceneTopBoundary: Phaser.GameObjects.Zone;
 
     constructor() {
         super({key: 'CityScene'});
@@ -58,11 +58,27 @@ export class CityScene extends Phaser.Scene {
         this.shootKey = this.input.keyboard.addKey('X');
         this.add.image(0, 0, 'city').setOrigin(0, 0).setScale(1);
         
-        this.createEnemies(3, Enemy.TYPE_BEING_DIFFERENT);
-        this.createEnemies(3, Enemy.TYPE_FEAR_OF_DARK);
-        this.createEnemies(3, Enemy.TYPE_FEAR_OF_PUBLIC_SPEAKING);
+        this.seceneTopBoundary = this.add.zone(
+            parseInt(this.game.config.width.toString())/2, 
+            parseInt(this.game.config.height.toString())*0.45, 
+            parseInt(this.game.config.width.toString()), 
+            20
+        );
+
+        this.physics.world.on('worldbounds', this.clearBullets, this);
+
+        this.physics.world.enable(this.seceneTopBoundary);
+        (<Phaser.Physics.Arcade.Body>this.seceneTopBoundary.body).setAllowGravity(false);
+        (<Phaser.Physics.Arcade.Body>this.seceneTopBoundary.body).moves = false;
+
+       // this.createEnemies(3, Enemy.TYPE_BEING_DIFFERENT);
+       // this.createEnemies(3, Enemy.TYPE_FEAR_OF_DARK);
+       // this.createEnemies(3, Enemy.TYPE_FEAR_OF_PUBLIC_SPEAKING);
 
         this.mainCharacter.create();
+
+        this.physics.add.collider(this.seceneTopBoundary, this.mainCharacter.cameraObjective());
+        (<Phaser.Physics.Arcade.Body>this.seceneTopBoundary.body).debugBodyColor = 0x00ffff;
 
         this.camera = this.cameras.add(0, 0);
         this.camera.setZoom(1.20);
@@ -74,6 +90,18 @@ export class CityScene extends Phaser.Scene {
         );
 
         this.camera.startFollow(this.mainCharacter.cameraObjective());
+    }
+
+    private clearBullets(body: Phaser.Physics.Arcade.Body) {
+        if (body.gameObject.name === 'bullet') {
+            this.bulletsFacingRight.remove(body.gameObject);
+            body.gameObject.destroy();
+        }
+
+        if (body.gameObject.name === 'bullet-left') {
+            this.bulletsFacingleft.remove(body.gameObject);
+            body.gameObject.destroy();
+        }
     }
 
     private createEnemies(amount: integer, type: string): void {
@@ -103,20 +131,32 @@ export class CityScene extends Phaser.Scene {
     }
 
     public createBullet(): void {
+        let bullet: Phaser.GameObjects.Sprite;
 
         if (this.mainCharacter.facing() === this.mainCharacter.FACING_RIGHT) {
-            this.bulletsFacingRight.create(
-                this.mainCharacter.bulletPosition().x, 
-                this.mainCharacter.bulletPosition().y, 
-                'bullet'
-            );    
+            this.addBullet(
+                'bullet', 
+                this.bulletsFacingRight, 
+                this.mainCharacter.bulletOrigin().x,
+                this.mainCharacter.bulletOrigin().y
+            );
         } else {
-            this.bulletsFacingleft.create(
-                this.mainCharacter.bulletPosition().x, 
-                this.mainCharacter.bulletPosition().y, 
-                'bullet-left'
-            );    
+            this.addBullet(
+                'bullet-left', 
+                this.bulletsFacingleft, 
+                this.mainCharacter.bulletOrigin().x,
+                this.mainCharacter.bulletOrigin().y
+            );
         }
+    }
+
+    private addBullet(spriteName: string, group: Phaser.Physics.Arcade.Group, x: integer, y: integer) : Phaser.GameObjects.Sprite {
+        let bullet = group.create(x, y, spriteName);
+
+        bullet.name = spriteName;
+        (<Phaser.Physics.Arcade.Body>bullet.body).onWorldBounds = true;
+
+        return bullet;
     }
 
     private moveMainCharacter(): void {

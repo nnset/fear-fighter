@@ -51,6 +51,7 @@ export class MainCharacter extends Phaser.GameObjects.GameObject {
         ];
 
         this.regularMuzzleFlare = new MuzzleFlare(this.scene, 0, 0, this.scale * 0.75);
+        this.name = 'mainCharacter';
     }
 
     public preload(): void {
@@ -66,7 +67,13 @@ export class MainCharacter extends Phaser.GameObjects.GameObject {
 
     public create(): void {
         this.sprite = this.scene.add.sprite(this.initialX, this.initialY, this.IDLE, 0).setScale(this.scale);
+        this.sprite.setName(this.name);
+
         this.scene.physics.world.enable(this.sprite);
+        
+        this.spritePhysicsBody().setCollideWorldBounds(true);
+        this.spritePhysicsBody().onWorldBounds = true;
+
         //Seems that Physics body does not use sprite's scale in order to set its dimensions.
         this.spritePhysicsBody().width  *= this.scale;
         this.spritePhysicsBody().height *= this.scale;
@@ -105,7 +112,7 @@ export class MainCharacter extends Phaser.GameObjects.GameObject {
         return this.spritePhysicsBody().center;
     }
 
-    public bulletPosition(): Vector2Like {
+    public bulletOrigin(): Vector2Like {
         let bulletX: number = this.position().x;
         let bulletY: number = this.position().y + 40;
 
