@@ -126,6 +126,10 @@ export class Enemy extends Phaser.GameObjects.GameObject {
     public isDead(): boolean {
         return this.animationState === this.DEATH;
     }
+
+    public enemyType(): string {
+        return this.skin;
+    }
 };
 
 declare type AnimationSettings = {

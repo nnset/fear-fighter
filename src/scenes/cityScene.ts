@@ -1,6 +1,9 @@
 import 'phaser';
+import { FearCounter } from '../gameplay/fearCounter';
+import { Score } from '../gameplay/score';
 import { MainCharacter } from '../characters/mainCharacter';
 import { Enemy } from '../characters/enemy';
+import { HUD } from '../ui/headsUpDisplay';
 
 export class CityScene extends Phaser.Scene {
 
@@ -14,10 +17,15 @@ export class CityScene extends Phaser.Scene {
     private seceneTopBoundary: Phaser.GameObjects.Zone;
     private enemies: Array<Enemy>;
     private enemiesCreatedCounter: integer;
+    private score: Score;
+    private hudTimestamp: number;
+    private hud: HUD;
 
     constructor() {
         super({key: 'CityScene'});
         this.enemies = new Array<Enemy>();
+        this.score = new Score();
+        this.hudTimestamp = 0;
     }
 
     init(params): void {
@@ -31,12 +39,16 @@ export class CityScene extends Phaser.Scene {
         this.load.image('bullet', 'assets/Objects/bullet.png');
         this.load.image('bullet-left', 'assets/Objects/bullet-left.png');
 
+        // TODO this methods could be static.
         new Enemy(this, Enemy.TYPE_FEAR_OF_DARK, 120, 475).preload();
         new Enemy(this, Enemy.TYPE_BEING_DIFFERENT, 120, 475).preload();
         new Enemy(this, Enemy.TYPE_FEAR_OF_PUBLIC_SPEAKING, 120, 475).preload();
 
         this.mainCharacter = new MainCharacter(this, 500, 450, 2);
         this.mainCharacter.preload();
+
+        this.hud = new HUD(this, 0, 0, this.score);
+        this.hud.preload();        
     }
     
     create(): void {
@@ -52,7 +64,15 @@ export class CityScene extends Phaser.Scene {
             
         this.createMainCharacter();
 
-        this. createCamera();
+        this.createCamera();
+
+        this.hud.create();
+        this.add.existing(this.hud.backgroundArea);
+        this.add.existing(this.hud.fearBar);
+        this.add.existing(this.hud.bulletIcon);
+        this.add.existing(this.hud.shootsCounter);
+        this.add.existing(this.hud.scoreCounter);
+        
     }
 
     private createPlayerControls(): void {
@@ -179,13 +199,16 @@ export class CityScene extends Phaser.Scene {
 
     private killEnemy(enemy: Enemy): void {
         enemy.kill();
-        // TODO : Update player stats
+        this.score.enemyKilled(enemy.enemyType());
     }
 
     update(time, delta): void {
+        this.updateHUD(time);
+
         if (this.shootKey.isDown) {   
             if (this.mainCharacter.shoot()) {
                 this.createBullet();
+                this.score.playerShoot();
             }
         } else {
             this.moveMainCharacter();
@@ -249,6 +272,18 @@ export class CityScene extends Phaser.Scene {
     private anyMovementKeIsPressed(): boolean {
         return this.cursors.up.isDown  || this.cursors.down.isDown ||
                this.cursors.left.isDown || this.cursors.right.isDown;
+    }
+
+    private updateHUD(time): void {
+        if (time - this.hudTimestamp >= 5000) {
+            console.log('Current fear '+this.score.fearProgress());
+            console.log('Score '+this.score.points);
+            console.log('Enemies killed '+this.score.enemiesKilled);
+            console.log('Shoots '+this.score.shootsFired);
+            this.hudTimestamp = time;
+        }
+        let cameraTopLeftCornerWorldPoint = this.camera.getWorldPoint(0,0);
+        this.hud.update(cameraTopLeftCornerWorldPoint.x, cameraTopLeftCornerWorldPoint.y);
     }
 
     private moveEnemies(): void {
