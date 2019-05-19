@@ -4,14 +4,13 @@ export class Enemy extends Phaser.GameObjects.GameObject {
     static readonly TYPE_BEING_DIFFERENT = 'BeingDifferent';
     static readonly TYPE_FEAR_OF_DARK = 'FearOfDark';
     static readonly TYPE_FEAR_OF_PUBLIC_SPEAKING = 'FearOfPublicSpeaking';
-    
-    readonly IDLE = 'idle';
-    readonly DEATH = 'death';
-    readonly RUN = 'run';
-    readonly VERTICAL_SPEED = 200;
-    readonly HORIZONTAL_SPEED = 200;
-    readonly FACING_RIGHT = 1;
-    readonly FACING_LEFT = 2;
+    static readonly VERTICAL_SPEED = 100;
+    static readonly HORIZONTAL_SPEED = 170;
+    static readonly IDLE = 'idle';
+    static readonly DEATH = 'death';
+    static readonly RUN = 'run';
+    static readonly FACING_RIGHT = 1;
+    static readonly FACING_LEFT = 2;
 
     private sprite: Phaser.GameObjects.Sprite;
     private animations: Array<AnimationSettings>;
@@ -40,17 +39,17 @@ export class Enemy extends Phaser.GameObjects.GameObject {
         this.intialX = x;
         this.initialY = y;
         this.scale = scale;
-        this.animationState = this.IDLE;
+        this.animationState = Enemy.IDLE;
         this.frameRate = frameRate;
-        this.facingTo = this.FACING_RIGHT;
+        this.facingTo = Enemy.FACING_RIGHT;
         this.skin = skin;
         this.name = 'enemy';
         this.id = id;
 
         this.animations = [
-            {key: this.skin+this.IDLE,  assetKey: this.IDLE, repeat: -1, frameRate: this.frameRate},
-            {key: this.skin+this.DEATH, assetKey: this.DEATH, repeat: 0, frameRate: this.frameRate},
-            {key: this.skin+this.RUN ,  assetKey: this.RUN, repeat: -1 , frameRate: this.frameRate},
+            {key: this.skin+Enemy.IDLE,  assetKey: Enemy.IDLE, repeat: -1, frameRate: this.frameRate},
+            {key: this.skin+Enemy.DEATH, assetKey: Enemy.DEATH, repeat: 0, frameRate: this.frameRate},
+            {key: this.skin+Enemy.RUN ,  assetKey: Enemy.RUN, repeat: -1 , frameRate: this.frameRate},
         ];
     }
 
@@ -64,7 +63,7 @@ export class Enemy extends Phaser.GameObjects.GameObject {
     }
 
     public create(): void {
-        this.sprite = this.scene.add.sprite(this.intialX, this.initialY, this.IDLE, 0).setScale(this.scale);
+        this.sprite = this.scene.add.sprite(this.intialX, this.initialY, Enemy.IDLE, 0).setScale(this.scale);
         this.scene.physics.world.enable(this.sprite);
         this.sprite.name = ''+this.id;
         //Seems that Physics body does not use sprite's scale in order to set its dimensions.
@@ -73,7 +72,7 @@ export class Enemy extends Phaser.GameObjects.GameObject {
 
         this.createAnimations();
 
-        this.sprite.anims.play(this.skin+this.IDLE);
+        this.sprite.anims.play(this.skin+Enemy.IDLE);
     }
 
     private spritePhysicsBody(): Phaser.Physics.Arcade.Body {
@@ -100,31 +99,61 @@ export class Enemy extends Phaser.GameObjects.GameObject {
         }
     }
 
+    public updateMovement(): void {
+        if (this.isDead()) {
+            return;
+        }
+        
+        if (this.spritePhysicsBody().velocity.x === 0) {
+            this.idle();
+            return;
+        }
+
+        this.run();
+    }
+
     public kill(): void {
-        if (this.animationState != this.DEATH) {
-            this.animationState = this.DEATH;
-            this.sprite.anims.play(this.skin+this.DEATH);
+        if (this.animationState != Enemy.DEATH) {
+            this.animationState = Enemy.DEATH;
+            this.sprite.anims.play(this.skin+Enemy.DEATH);
             this.spritePhysicsBody().setVelocityX(0);
             this.spritePhysicsBody().setVelocityY(0);
             this.scene.physics.world.disable(this.sprite);
         }
     }
 
-    public idle(): void {
+    private idle(): void {
         if (this.isDead()) {
             return;
         }
         
-        if (this.animationState != this.IDLE) {
-            this.animationState = this.IDLE;
-            this.sprite.anims.play(this.skin+this.IDLE);
+        if (this.animationState != Enemy.IDLE) {
+            this.animationState = Enemy.IDLE;
+            this.sprite.anims.play(this.skin+Enemy.IDLE);
             this.spritePhysicsBody().setVelocityX(0);
             this.spritePhysicsBody().setVelocityY(0);            
         }
     }
 
+    private run(): void {
+        if (this.isDead()) {
+            return;
+        }
+        
+        if (this.animationState != Enemy.RUN) {
+            this.animationState = Enemy.RUN;
+            this.sprite.anims.play(this.skin+Enemy.RUN);
+        }
+
+        if (this.spritePhysicsBody().velocity.x > 0) {
+            this.sprite.flipX = false;    
+        } else {
+            this.sprite.flipX = true;
+        }
+    }
+
     public isDead(): boolean {
-        return this.animationState === this.DEATH;
+        return this.animationState === Enemy.DEATH;
     }
 
     public enemyType(): string {

@@ -1,5 +1,4 @@
 import 'phaser';
-import { FearCounter } from '../gameplay/fearCounter';
 import { Score } from '../gameplay/score';
 import { MainCharacter } from '../characters/mainCharacter';
 import { Enemy } from '../characters/enemy';
@@ -14,18 +13,17 @@ export class CityScene extends Phaser.Scene {
     private bulletsFacingRight: Phaser.Physics.Arcade.Group;
     private bulletsFacingleft: Phaser.Physics.Arcade.Group;
     private enemiesPhysics: Phaser.Physics.Arcade.Group;
-    private seceneTopBoundary: Phaser.GameObjects.Zone;
+    private mainCharacterSceneTopBoundary: Phaser.GameObjects.Zone;
+    private enemiesSceneTopBoundary: Phaser.GameObjects.Zone;
     private enemies: Array<Enemy>;
     private enemiesCreatedCounter: integer;
     private score: Score;
-    private hudTimestamp: number;
     private hud: HUD;
 
     constructor() {
         super({key: 'CityScene'});
         this.enemies = new Array<Enemy>();
         this.score = new Score();
-        this.hudTimestamp = 0;
     }
 
     init(params): void {
@@ -39,7 +37,6 @@ export class CityScene extends Phaser.Scene {
         this.load.image('bullet', 'assets/Objects/bullet.png');
         this.load.image('bullet-left', 'assets/Objects/bullet-left.png');
 
-        // TODO this methods could be static.
         new Enemy(this, Enemy.TYPE_FEAR_OF_DARK, 120, 475).preload();
         new Enemy(this, Enemy.TYPE_BEING_DIFFERENT, 120, 475).preload();
         new Enemy(this, Enemy.TYPE_FEAR_OF_PUBLIC_SPEAKING, 120, 475).preload();
@@ -61,7 +58,7 @@ export class CityScene extends Phaser.Scene {
         this.createEnemies(3, Enemy.TYPE_BEING_DIFFERENT);
         this.createEnemies(3, Enemy.TYPE_FEAR_OF_DARK);
         this.createEnemies(3, Enemy.TYPE_FEAR_OF_PUBLIC_SPEAKING);
-            
+        
         this.createMainCharacter();
 
         this.createCamera();
@@ -71,8 +68,7 @@ export class CityScene extends Phaser.Scene {
         this.add.existing(this.hud.fearBar);
         this.add.existing(this.hud.bulletIcon);
         this.add.existing(this.hud.shootsCounter);
-        this.add.existing(this.hud.scoreCounter);
-        
+        this.add.existing(this.hud.scoreCounter);     
     }
 
     private createPlayerControls(): void {
@@ -104,26 +100,38 @@ export class CityScene extends Phaser.Scene {
         });
 
         this.enemiesPhysics = this.physics.add.group({
-            key: 'enemy',
             allowGravity: false,
             enable: true,
-            velocityY: 0,
-            velocityX: 0,
+            velocityY: Enemy.VERTICAL_SPEED,
+            velocityX: Enemy.HORIZONTAL_SPEED,
+            bounceX: 1,
+            bounceY: 1,
             collideWorldBounds: true
         });
 
-        this.seceneTopBoundary = this.add.zone(
+        this.mainCharacterSceneTopBoundary = this.add.zone(
             parseInt(this.game.config.width.toString())/2, 
             parseInt(this.game.config.height.toString())*0.45, 
             parseInt(this.game.config.width.toString()), 
             20
         );
 
-        this.physics.world.on('worldbounds', this.clearBullet, this);
+        this.enemiesSceneTopBoundary = this.add.zone(
+            parseInt(this.game.config.width.toString())/2, 
+            parseInt(this.game.config.height.toString())*0.45, 
+            parseInt(this.game.config.width.toString()), 
+            20
+        );
 
-        this.physics.world.enable(this.seceneTopBoundary);
-        (<Phaser.Physics.Arcade.Body>this.seceneTopBoundary.body).setAllowGravity(false);
-        (<Phaser.Physics.Arcade.Body>this.seceneTopBoundary.body).moves = false;
+        this.physics.world.on('worldbounds', this.onWorldBoundsHandler, this);
+
+        this.physics.world.enable(this.mainCharacterSceneTopBoundary);
+        (<Phaser.Physics.Arcade.Body>this.mainCharacterSceneTopBoundary.body).setAllowGravity(false);
+        (<Phaser.Physics.Arcade.Body>this.mainCharacterSceneTopBoundary.body).moves = false;
+
+        this.physics.world.enable(this.enemiesSceneTopBoundary);
+        (<Phaser.Physics.Arcade.Body>this.enemiesSceneTopBoundary.body).setAllowGravity(false);
+        (<Phaser.Physics.Arcade.Body>this.enemiesSceneTopBoundary.body).moves = false;
 
         this.physics.add.collider(this.enemiesPhysics, this.bulletsFacingRight, this.bulletEnemyCollision, null, this);
         this.physics.add.collider(this.enemiesPhysics, this.bulletsFacingleft, this.bulletEnemyCollision, null, this);
@@ -145,37 +153,67 @@ export class CityScene extends Phaser.Scene {
     private createMainCharacter(): void {
         this.mainCharacter.create();
 
-        this.physics.add.collider(this.seceneTopBoundary, this.mainCharacter.cameraObjective());
-        (<Phaser.Physics.Arcade.Body>this.seceneTopBoundary.body).debugBodyColor = 0x00ffff;
+        this.physics.add.collider(this.mainCharacterSceneTopBoundary, this.mainCharacter.cameraObjective());
+        (<Phaser.Physics.Arcade.Body>this.mainCharacterSceneTopBoundary.body).debugBodyColor = 0x00ffff;
     }
 
     private createEnemies(amount: integer, type: string): void {
         var i:integer = 0;
 
         while (i < amount) {
-            var x:integer = Math.floor(Math.random() * (600 - 80)) + 80;
-            var y:integer = Math.floor(Math.random() * (600 - 300)) + 300;
+            var x:integer = Math.floor(Math.random() * 80) + 80;
+            var y:integer = Math.max(Math.floor(Math.random() * this.enemiesSceneTopBoundary.y) + 300, this.enemiesSceneTopBoundary.y + 85);
     
             let enemy:Enemy = new Enemy(this, type, x, y, 2, this.enemiesCreatedCounter);
             enemy.create();
 
             this.enemiesPhysics.add(enemy.getSprite());
+            this.physics.add.collider(
+                this.enemiesSceneTopBoundary, 
+                enemy.getSprite(), 
+                this.enemiesSceneTopBoundaryCollision, 
+                null, 
+                this
+            );
             this.enemies.push(enemy);
+
             this.enemiesCreatedCounter++;
 
             i++;
         }
     }
 
-    private clearBullet(body: Phaser.Physics.Arcade.Body) {
+    private enemiesSceneTopBoundaryCollision(sceneTopBoundary, enemySprite): void {
+        let enemyPhysicsBody = (<Phaser.Physics.Arcade.Body>enemySprite.body);
+
+        if(enemyPhysicsBody.velocity.y <= 0) {
+            const randomVerticalSpeed: number = 
+                Math.max(Math.floor(Math.random() * Enemy.VERTICAL_SPEED) + Enemy.VERTICAL_SPEED/2, Enemy.VERTICAL_SPEED/2);
+
+            enemyPhysicsBody.velocity.y = randomVerticalSpeed;
+
+            if (Math.random() >= 0.45) {
+                const randomHorizontalSpeed: number = 
+                    Math.min(Math.floor(Math.random() * enemyPhysicsBody.velocity.x) + Enemy.HORIZONTAL_SPEED/2, Enemy.HORIZONTAL_SPEED);
+
+                enemyPhysicsBody.velocity.x = -randomHorizontalSpeed;
+            }
+        }
+    }
+
+    private onWorldBoundsHandler(body: Phaser.Physics.Arcade.Body): void {
         if (body.gameObject.name === 'bullet') {
             this.bulletsFacingRight.remove(body.gameObject);
             body.gameObject.destroy();
+            
+            return;
         }
 
         if (body.gameObject.name === 'bullet-left') {
             this.bulletsFacingleft.remove(body.gameObject);
             body.gameObject.destroy();
+
+            return;
         }
     }
 
@@ -193,7 +231,7 @@ export class CityScene extends Phaser.Scene {
                 }
             });
 
-            this.clearBullet(<Phaser.Physics.Arcade.Body>bullet.body);
+            this.onWorldBoundsHandler(<Phaser.Physics.Arcade.Body>bullet.body);
         }
     }
 
@@ -214,7 +252,7 @@ export class CityScene extends Phaser.Scene {
             this.moveMainCharacter();
         }
 
-        //this.moveEnemies();
+        this.moveEnemies();
     }
 
     public createBullet(): void {
@@ -275,27 +313,13 @@ export class CityScene extends Phaser.Scene {
     }
 
     private updateHUD(time): void {
-        if (time - this.hudTimestamp >= 5000) {
-            console.log('Current fear '+this.score.fearProgress());
-            console.log('Score '+this.score.points);
-            console.log('Enemies killed '+this.score.enemiesKilled);
-            console.log('Shoots '+this.score.shootsFired);
-            this.hudTimestamp = time;
-        }
         let cameraTopLeftCornerWorldPoint = this.camera.getWorldPoint(0,0);
         this.hud.update(cameraTopLeftCornerWorldPoint.x, cameraTopLeftCornerWorldPoint.y);
     }
 
     private moveEnemies(): void {
-        
-        /*
-        for (let enemy of this.enemiesPhysics.children) {
-            if (enemy.x > parseInt(this.game.config.width.toString()) - 20 || enemy.x < 20) {
-                enemy.changeOrientation();
-            }
-
-            enemy.move();
+        for (let enemy of this.enemies) {
+            enemy.updateMovement();
         }
-        */
     }
 };
