@@ -9,10 +9,11 @@ import { GameObjects } from "phaser";
  * object and also handles game logic for Player's playable character.
  */
 export class MainCharacter extends Phaser.GameObjects.GameObject {
-    readonly IDLE = 'idle_2';
+    static readonly TIME_BETWEEN_HITS = 5000;
+    readonly IDLE = 'idle';
     readonly DEATH = 'death';
-    readonly SHOOT = 'shoot_2';
-    readonly RUN = 'run_2';
+    readonly SHOOT = 'shoot';
+    readonly RUN = 'run';
     readonly VERTICAL_SPEED = 200;
     readonly HORIZONTAL_SPEED = 200;
     readonly FACING_RIGHT = 1;
@@ -27,6 +28,7 @@ export class MainCharacter extends Phaser.GameObjects.GameObject {
     private scale: number;
     private frameRate: number;
     private facingTo: number;
+    private lastHit: number;
 
     constructor(
         scene: Phaser.Scene, 
@@ -42,6 +44,7 @@ export class MainCharacter extends Phaser.GameObjects.GameObject {
         this.animationState = this.IDLE;
         this.frameRate = frameRate;
         this.facingTo = this.FACING_RIGHT;
+        this.lastHit = 0;
 
         this.animations = [
             {key: this.IDLE, repeat: -1, frameRate: this.frameRate, frameWidth: 50, frameHeight : 50},
@@ -114,17 +117,32 @@ export class MainCharacter extends Phaser.GameObjects.GameObject {
     }
 
     public bulletOrigin(): Vector2Like {
-        let bulletX: number = this.position().x;
-        let bulletY: number = this.position().y + 40;
+        let bulletX: number = this.position().x +10;
+        let bulletY: number = this.position().y + 10;
 
         if (this.facingTo === this.FACING_RIGHT) {
-            bulletX += 130;
+            bulletX += 25;
         }
 
         return {
             x: bulletX,
             y: bulletY
         };
+    }
+
+    /**
+     * @returns True if the reported hit is considered a hit, false otherwise.
+     */
+    public hit(time: number): boolean {
+        if (time - this.lastHit > MainCharacter.TIME_BETWEEN_HITS) {
+            this.lastHit = time;
+
+            this.sprite.setTint(0x00dd00);
+
+            return true;
+        }
+
+        return false;
     }
 
     public die(): void {
@@ -146,15 +164,15 @@ export class MainCharacter extends Phaser.GameObjects.GameObject {
             this.stop();
 
             this.animationState = this.SHOOT;
-            let muzzleFlareX = this.position().x + 90;
+            let muzzleFlareX = this.position().x + 20;
             
             if (this.facingTo === this.FACING_LEFT) {
-               muzzleFlareX = this.position().x + 50;
+               muzzleFlareX = this.position().x + 5;
             }
 
             this.sprite.anims.play(this.SHOOT);
 
-            this.regularMuzzleFlare.show(muzzleFlareX, this.position().y + 40, this.facingTo);
+            this.regularMuzzleFlare.show(muzzleFlareX, this.position().y + 5, this.facingTo);
             
             return true;
         }
@@ -240,6 +258,12 @@ export class MainCharacter extends Phaser.GameObjects.GameObject {
 
     public facing(): integer {
         return this.facingTo;
+    }
+
+    public update(time: number): void {
+        if (time - this.lastHit > MainCharacter.TIME_BETWEEN_HITS) { 
+            this.sprite.setTint(undefined);
+        }
     }
 };
 

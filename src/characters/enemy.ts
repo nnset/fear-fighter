@@ -47,9 +47,9 @@ export class Enemy extends Phaser.GameObjects.GameObject {
         this.id = id;
 
         this.animations = [
-            {key: this.skin+Enemy.IDLE,  assetKey: Enemy.IDLE, repeat: -1, frameRate: this.frameRate},
-            {key: this.skin+Enemy.DEATH, assetKey: Enemy.DEATH, repeat: 0, frameRate: this.frameRate},
-            {key: this.skin+Enemy.RUN ,  assetKey: Enemy.RUN, repeat: -1 , frameRate: this.frameRate},
+            {key: this.skin+Enemy.IDLE,  assetKey: Enemy.IDLE, repeat: -1, frameRate: this.frameRate, frameWidth: 50, frameHeight: 50},
+            {key: this.skin+Enemy.DEATH, assetKey: Enemy.DEATH, repeat: 0, frameRate: this.frameRate, frameWidth: 140, frameHeight: 80},
+            {key: this.skin+Enemy.RUN ,  assetKey: Enemy.RUN, repeat: -1 , frameRate: this.frameRate, frameWidth: 50, frameHeight: 55},
         ];
     }
 
@@ -57,7 +57,7 @@ export class Enemy extends Phaser.GameObjects.GameObject {
         this.animations.forEach(animation => {
             this.scene.load.spritesheet(
                 animation.key, `assets/Enemies/${this.skin}/${animation.assetKey}.png`, 
-                {frameWidth: 140, frameHeight: 80}
+                {frameWidth: animation.frameWidth, frameHeight: animation.frameHeight}
             );
         });
     }
@@ -164,6 +164,8 @@ export class Enemy extends Phaser.GameObjects.GameObject {
 declare type AnimationSettings = {
     assetKey: string;
     frameRate: number;
+    frameWidth: number;
+    frameHeight: number;
     key: string;
     repeat: number; // -1 => forever
 };

@@ -36,6 +36,10 @@ export class HUD extends Phaser.GameObjects.Container {
         this.add(this.scoreCounter);
     }
 
+    public playerWasHit(): void {
+        // TODO
+    }
+
     update(x: number, y: number): void {
         // TODO Remove all these magic numbers
         let baseY = y + 5;

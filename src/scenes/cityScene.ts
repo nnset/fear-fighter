@@ -55,9 +55,9 @@ export class CityScene extends Phaser.Scene {
     
         this.createWorldPhysics();
 
-        this.createEnemies(1, Enemy.TYPE_BEING_DIFFERENT);
-        this.createEnemies(1, Enemy.TYPE_FEAR_OF_DARK);
-        this.createEnemies(1, Enemy.TYPE_FEAR_OF_PUBLIC_SPEAKING);
+        this.createEnemies(3, Enemy.TYPE_BEING_DIFFERENT);
+        this.createEnemies(3, Enemy.TYPE_FEAR_OF_DARK);
+        this.createEnemies(3, Enemy.TYPE_FEAR_OF_PUBLIC_SPEAKING);
         
         this.createMainCharacter();
 
@@ -239,7 +239,10 @@ export class CityScene extends Phaser.Scene {
     }
 
     private mainCharacterEnemyCollision(mainCharacter: Phaser.GameObjects.GameObject, enemy: Phaser.GameObjects.GameObject): void {
-        this.score.playerWasHit();
+        if (this.mainCharacter.hit(this.time.now)) {
+            this.score.playerWasHit();
+            this.hud.playerWasHit();
+        }
     }
 
     private killEnemy(enemy: Enemy): void {
@@ -249,6 +252,7 @@ export class CityScene extends Phaser.Scene {
 
     update(time, delta): void {
         this.updateHUD(time);
+        this.mainCharacter.update(time);
 
         if (this.shootKey.isDown) {   
             if (this.mainCharacter.shoot()) {
