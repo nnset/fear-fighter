@@ -246,7 +246,7 @@ export class CityScene extends Phaser.Scene {
     }
 
     private killEnemy(enemy: Enemy): void {
-        enemy.kill();
+        enemy.kill(this.time.now);
         this.score.enemyKilled(enemy.enemyType());
     }
 
@@ -263,7 +263,7 @@ export class CityScene extends Phaser.Scene {
             this.moveMainCharacter();
         }
 
-        this.moveEnemies();
+        this.updateEnemies(time);
     }
 
     public createBullet(): void {
@@ -328,9 +328,14 @@ export class CityScene extends Phaser.Scene {
         this.hud.update(cameraTopLeftCornerWorldPoint.x, cameraTopLeftCornerWorldPoint.y);
     }
 
-    private moveEnemies(): void {
-        for (let enemy of this.enemies) {
-            enemy.updateMovement();
+    private updateEnemies(time: number): void {
+        for (var i = 0; i < this.enemies.length; i++) {
+            if (this.enemies[i].isTimeToDisapear(time)) {
+                (<Enemy>this.enemies[i]).destroy();
+                this.enemies.splice(i,1);
+            } else {
+                (<Enemy>this.enemies[i]).updateMovement();
+            }
         }
     }
 };

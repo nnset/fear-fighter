@@ -22,6 +22,8 @@ export class Enemy extends Phaser.GameObjects.GameObject {
     private frameRate: number;
     private facingTo: number;
     private skin: string;
+    private killedAt: number;
+    private disapearTime: number;
 
     public id: integer;
 
@@ -45,6 +47,8 @@ export class Enemy extends Phaser.GameObjects.GameObject {
         this.skin = skin;
         this.name = 'enemy';
         this.id = id;
+        this.killedAt = 0;
+        this.disapearTime = Math.floor(Math.random() * 8000) + 1500;
 
         this.animations = [
             {key: this.skin+Enemy.IDLE,  assetKey: Enemy.IDLE, repeat: -1, frameRate: this.frameRate, frameWidth: 50, frameHeight: 50},
@@ -112,13 +116,14 @@ export class Enemy extends Phaser.GameObjects.GameObject {
         this.run();
     }
 
-    public kill(): void {
+    public kill(time: number): void {
         if (this.animationState != Enemy.DEATH) {
             this.animationState = Enemy.DEATH;
             this.sprite.anims.play(this.skin+Enemy.DEATH);
             this.spritePhysicsBody().setVelocityX(0);
             this.spritePhysicsBody().setVelocityY(0);
             this.scene.physics.world.disable(this.sprite);
+            this.killedAt = time;
         }
     }
 
@@ -150,7 +155,7 @@ export class Enemy extends Phaser.GameObjects.GameObject {
         } else {
             this.sprite.flipX = true;
         }
-    }
+    }   
 
     public isDead(): boolean {
         return this.animationState === Enemy.DEATH;
@@ -158,6 +163,15 @@ export class Enemy extends Phaser.GameObjects.GameObject {
 
     public enemyType(): string {
         return this.skin;
+    }
+
+    public isTimeToDisapear(time: number): boolean {
+        return this.isDead() && time - this.killedAt > this.disapearTime;
+    }
+
+    public destroy(fromScene?: boolean): void {
+        super.destroy(fromScene);
+        this.sprite.destroy();
     }
 };
 
