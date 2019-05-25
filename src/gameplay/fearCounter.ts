@@ -1,8 +1,8 @@
 export class FearCounter {
 
-    readonly INITIAL_FEAR = 1000;
+    readonly INITIAL_FEAR = 10000;
     readonly DECREASE_STEP = 100;
-    readonly INCREASE_STEP = 100;
+    readonly INCREASE_STEP = 300;
 
     private currentFear: number;
     

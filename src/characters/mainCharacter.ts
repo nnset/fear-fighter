@@ -9,7 +9,7 @@ import { GameObjects } from "phaser";
  * object and also handles game logic for Player's playable character.
  */
 export class MainCharacter extends Phaser.GameObjects.GameObject {
-    static readonly TIME_BETWEEN_HITS = 5000;
+    static readonly TIME_BETWEEN_HITS = 2000;
     readonly IDLE = 'idle';
     readonly DEATH = 'death';
     readonly SHOOT = 'shoot';
