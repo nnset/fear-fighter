@@ -135,14 +135,14 @@ export class CityScene extends Phaser.Scene {
 
         this.mainCharacterSceneTopBoundary = this.add.zone(
             parseInt(this.game.config.width.toString())/2, 
-            parseInt(this.game.config.height.toString())*0.45, 
+            parseInt(this.game.config.height.toString())*0.55, 
             parseInt(this.game.config.width.toString()), 
             20
         );
 
         this.enemiesSceneTopBoundary = this.add.zone(
             parseInt(this.game.config.width.toString())/2, 
-            parseInt(this.game.config.height.toString())*0.45, 
+            parseInt(this.game.config.height.toString())*0.55, 
             parseInt(this.game.config.width.toString()), 
             20
         );
@@ -365,6 +365,7 @@ export class CityScene extends Phaser.Scene {
 
     private updateEnemies(time: number): void {
         this.cleanDeadEnemies(time);
+        this.moveEnemies();
         this.spawnNewEnemies(time);
     }
 
@@ -374,6 +375,14 @@ export class CityScene extends Phaser.Scene {
                 (<Enemy>this.enemies[i]).destroy();
                 this.enemies.splice(i,1);
             } else {
+                (<Enemy>this.enemies[i]).updateMovement();
+            }
+        }
+    }
+
+    private moveEnemies(): void {
+        for (var i = 0; i < this.enemies.length; i++) {
+            if (!this.enemies[i].isDead()) {
                 (<Enemy>this.enemies[i]).updateMovement();
             }
         }

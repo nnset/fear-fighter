@@ -264,6 +264,8 @@ export class MainCharacter extends Phaser.GameObjects.GameObject {
         if (time - this.lastHit > MainCharacter.TIME_BETWEEN_HITS) { 
             this.sprite.setTint(undefined);
         }
+
+        this.sprite.setScale(Math.min(this.scale * 1.10, this.scale * (this.position().y / 500)));
     }
 };
 

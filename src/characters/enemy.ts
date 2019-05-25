@@ -118,6 +118,8 @@ export class Enemy extends Phaser.GameObjects.GameObject {
         }
 
         this.run();
+
+        this.sprite.setScale(Math.min(this.scale * 1.10, this.scale * (this.spritePhysicsBody().y / 500)));
     }
 
     public kill(time: number): void {
