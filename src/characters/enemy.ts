@@ -103,6 +103,10 @@ export class Enemy extends Phaser.GameObjects.GameObject {
         }
     }
 
+    public speed(speed: Phaser.Math.Vector2): void {
+        this.spritePhysicsBody().setVelocity(speed.x, speed.y);
+    }
+
     public updateMovement(): void {
         if (this.isDead()) {
             return;

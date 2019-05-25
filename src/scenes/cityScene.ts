@@ -16,14 +16,18 @@ export class CityScene extends Phaser.Scene {
     private mainCharacterSceneTopBoundary: Phaser.GameObjects.Zone;
     private enemiesSceneTopBoundary: Phaser.GameObjects.Zone;
     private enemies: Array<Enemy>;
+    private enemiesSpawnCoordinates: Array<Phaser.Math.Vector2>;
     private enemiesCreatedCounter: integer;
     private score: Score;
     private hud: HUD;
+    private lastEnemiesSpawnTime: number;
 
     constructor() {
         super({key: 'CityScene'});
         this.enemies = new Array<Enemy>();
+        this.enemiesSpawnCoordinates = new Array<Phaser.Math.Vector2>();
         this.score = new Score();
+        this.lastEnemiesSpawnTime = 0;
     }
 
     init(params): void {
@@ -45,7 +49,27 @@ export class CityScene extends Phaser.Scene {
         this.mainCharacter.preload();
 
         this.hud = new HUD(this, 0, 0, this.score);
-        this.hud.preload();        
+        this.hud.preload();  
+        this.generateEnemiesSpawnCoordinates();
+    }
+
+    private generateEnemiesSpawnCoordinates() : void {
+
+        this.enemiesSpawnCoordinates.push(new Phaser.Math.Vector2(76, 451));
+        this.enemiesSpawnCoordinates.push(new Phaser.Math.Vector2(112, 628));
+        this.enemiesSpawnCoordinates.push(new Phaser.Math.Vector2(160, 558));
+        this.enemiesSpawnCoordinates.push(new Phaser.Math.Vector2(425, 600));
+        this.enemiesSpawnCoordinates.push(new Phaser.Math.Vector2(600, 450));
+        this.enemiesSpawnCoordinates.push(new Phaser.Math.Vector2(827, 585));
+        this.enemiesSpawnCoordinates.push(new Phaser.Math.Vector2(1029, 591));
+        this.enemiesSpawnCoordinates.push(new Phaser.Math.Vector2(1100, 425));
+
+        for (var i = this.enemiesSpawnCoordinates.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var temp = this.enemiesSpawnCoordinates[i];
+            this.enemiesSpawnCoordinates[i] = this.enemiesSpawnCoordinates[j];
+            this.enemiesSpawnCoordinates[j] = temp;
+        }
     }
     
     create(): void {
@@ -164,26 +188,37 @@ export class CityScene extends Phaser.Scene {
         var i:integer = 0;
 
         while (i < amount) {
-            var x:integer = Math.floor(Math.random() * 80) + 80;
-            var y:integer = Math.max(Math.floor(Math.random() * this.enemiesSceneTopBoundary.y) + 300, this.enemiesSceneTopBoundary.y + 85);
-    
-            let enemy:Enemy = new Enemy(this, type, x, y, 2, this.enemiesCreatedCounter);
-            enemy.create();
+            var spawnPosition = Math.floor(Math.random() * (this.enemiesSpawnCoordinates.length -1));
 
-            this.enemiesPhysics.add(enemy.getSprite());
-            this.physics.add.collider(
-                this.enemiesSceneTopBoundary, 
-                enemy.getSprite(), 
-                this.enemiesSceneTopBoundaryCollision, 
-                null, 
-                this
-            );
-            this.enemies.push(enemy);
+            this.createEnemy(type, this.enemiesSpawnCoordinates[spawnPosition].x, this.enemiesSpawnCoordinates[spawnPosition].y);
 
             this.enemiesCreatedCounter++;
 
             i++;
         }
+    }
+
+    private createEnemy(type: string, x: number, y: number): Enemy {
+        let enemy:Enemy = new Enemy(this, type, x, y, 2, this.enemiesCreatedCounter);
+        enemy.create();
+
+        this.enemiesPhysics.add(enemy.getSprite());
+        this.physics.add.collider(
+            this.enemiesSceneTopBoundary, 
+            enemy.getSprite(), 
+            this.enemiesSceneTopBoundaryCollision, 
+            null, 
+            this
+        );
+
+        enemy.speed(new Phaser.Math.Vector2(
+            Math.floor(Math.random() * Enemy.HORIZONTAL_SPEED * 1.2),
+            Math.floor(Math.random() * Enemy.VERTICAL_SPEED * 1.2),
+        ));
+
+        this.enemies.push(enemy);
+
+        return enemy;
     }
 
     private enemiesSceneTopBoundaryCollision(sceneTopBoundary, enemySprite): void {
@@ -329,6 +364,11 @@ export class CityScene extends Phaser.Scene {
     }
 
     private updateEnemies(time: number): void {
+        this.cleanDeadEnemies(time);
+        this.spawnNewEnemies(time);
+    }
+
+    private cleanDeadEnemies(time): void {
         for (var i = 0; i < this.enemies.length; i++) {
             if (this.enemies[i].isTimeToDisapear(time)) {
                 (<Enemy>this.enemies[i]).destroy();
@@ -336,6 +376,16 @@ export class CityScene extends Phaser.Scene {
             } else {
                 (<Enemy>this.enemies[i]).updateMovement();
             }
+        }
+    }
+
+    private spawnNewEnemies(time: number): void {
+        if (time - this.lastEnemiesSpawnTime > 15000) {
+            this.createEnemies(3, Enemy.TYPE_BEING_DIFFERENT);
+            this.createEnemies(3, Enemy.TYPE_FEAR_OF_DARK);
+            this.createEnemies(3, Enemy.TYPE_FEAR_OF_PUBLIC_SPEAKING);
+            
+            this.lastEnemiesSpawnTime = time;
         }
     }
 };
