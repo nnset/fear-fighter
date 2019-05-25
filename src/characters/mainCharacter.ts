@@ -9,10 +9,10 @@ import { GameObjects } from "phaser";
  * object and also handles game logic for Player's playable character.
  */
 export class MainCharacter extends Phaser.GameObjects.GameObject {
-    readonly IDLE = 'idle';
+    readonly IDLE = 'idle_2';
     readonly DEATH = 'death';
-    readonly SHOOT = 'shoot';
-    readonly RUN = 'run';
+    readonly SHOOT = 'shoot_2';
+    readonly RUN = 'run_2';
     readonly VERTICAL_SPEED = 200;
     readonly HORIZONTAL_SPEED = 200;
     readonly FACING_RIGHT = 1;
@@ -44,10 +44,10 @@ export class MainCharacter extends Phaser.GameObjects.GameObject {
         this.facingTo = this.FACING_RIGHT;
 
         this.animations = [
-            {key: this.IDLE, repeat: -1, frameRate: this.frameRate},
-            {key: this.DEATH, repeat: 0, frameRate: this.frameRate},
-            {key: this.SHOOT, repeat: 0, frameRate: this.frameRate * 2},
-            {key: this.RUN, repeat: -1 , frameRate: this.frameRate},
+            {key: this.IDLE, repeat: -1, frameRate: this.frameRate, frameWidth: 50, frameHeight : 50},
+            {key: this.DEATH, repeat: 0, frameRate: this.frameRate, frameWidth: 140, frameHeight : 80},
+            {key: this.SHOOT, repeat: 0, frameRate: this.frameRate * 2, frameWidth: 50, frameHeight : 50},
+            {key: this.RUN, repeat: -1 , frameRate: this.frameRate, frameWidth: 50, frameHeight : 50},
         ];
 
         this.regularMuzzleFlare = new MuzzleFlare(this.scene, 0, 0, this.scale * 0.75);
@@ -57,8 +57,9 @@ export class MainCharacter extends Phaser.GameObjects.GameObject {
     public preload(): void {
         this.animations.forEach(animation => {
             this.scene.load.spritesheet(
-                animation.key, `assets/MainCharacter/animations/png/${animation.key}.png`, 
-                {frameWidth: 140, frameHeight: 80}
+                animation.key, 
+                `assets/MainCharacter/animations/png/${animation.key}.png`, 
+                {frameWidth: animation.frameWidth, frameHeight: animation.frameHeight}
             );
         });
 
@@ -244,6 +245,8 @@ export class MainCharacter extends Phaser.GameObjects.GameObject {
 
 declare type AnimationSettings = {
     frameRate: number;
+    frameWidth: number;
+    frameHeight: number;
     key: string;
     repeat: number; // -1 => forever
 };

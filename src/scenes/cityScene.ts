@@ -55,9 +55,9 @@ export class CityScene extends Phaser.Scene {
     
         this.createWorldPhysics();
 
-        this.createEnemies(3, Enemy.TYPE_BEING_DIFFERENT);
-        this.createEnemies(3, Enemy.TYPE_FEAR_OF_DARK);
-        this.createEnemies(3, Enemy.TYPE_FEAR_OF_PUBLIC_SPEAKING);
+        this.createEnemies(1, Enemy.TYPE_BEING_DIFFERENT);
+        this.createEnemies(1, Enemy.TYPE_FEAR_OF_DARK);
+        this.createEnemies(1, Enemy.TYPE_FEAR_OF_PUBLIC_SPEAKING);
         
         this.createMainCharacter();
 
@@ -155,6 +155,9 @@ export class CityScene extends Phaser.Scene {
 
         this.physics.add.collider(this.mainCharacterSceneTopBoundary, this.mainCharacter.cameraObjective());
         (<Phaser.Physics.Arcade.Body>this.mainCharacterSceneTopBoundary.body).debugBodyColor = 0x00ffff;
+
+        let collider = this.physics.add.collider(this.mainCharacter.cameraObjective(), this.enemiesPhysics, this.mainCharacterEnemyCollision, null, this);
+        collider.overlapOnly = true;
     }
 
     private createEnemies(amount: integer, type: string): void {
@@ -235,6 +238,10 @@ export class CityScene extends Phaser.Scene {
         }
     }
 
+    private mainCharacterEnemyCollision(mainCharacter: Phaser.GameObjects.GameObject, enemy: Phaser.GameObjects.GameObject): void {
+        this.score.playerWasHit();
+    }
+
     private killEnemy(enemy: Enemy): void {
         enemy.kill();
         this.score.enemyKilled(enemy.enemyType());
@@ -296,7 +303,7 @@ export class CityScene extends Phaser.Scene {
             } if (this.cursors.up.isDown) {
                 this.mainCharacter.run();
                 this.mainCharacter.moveUp();
-            } 
+            }
             
             if (this.cursors.down.isDown) {
                 this.mainCharacter.run();

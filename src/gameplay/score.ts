@@ -71,6 +71,10 @@ export class Score {
         return this.shootsFired;
     }
 
+    public playerWasHit(): void {
+        this.fearCounter.increase();
+    }
+
     public fearProgress(): number {
         return this.fearCounter.progress();
     }
