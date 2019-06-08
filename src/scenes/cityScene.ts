@@ -21,6 +21,8 @@ export class CityScene extends Phaser.Scene {
     private score: Score;
     private hud: HUD;
     private lastEnemiesSpawnTime: number;
+    
+    private readonly MAX_ENEMIES = 20;
 
     constructor() {
         super({key: 'CityScene'});
@@ -187,8 +189,8 @@ export class CityScene extends Phaser.Scene {
     private createEnemies(amount: integer, type: string): void {
         var i:integer = 0;
 
-        while (i < amount) {
-            var spawnPosition = Math.floor(Math.random() * (this.enemiesSpawnCoordinates.length -1));
+        while (i < amount && this.enemies.length <= this.MAX_ENEMIES) {
+            var spawnPosition = Phaser.Math.Between(0, this.enemiesSpawnCoordinates.length - 1);
 
             this.createEnemy(type, this.enemiesSpawnCoordinates[spawnPosition].x, this.enemiesSpawnCoordinates[spawnPosition].y);
 
@@ -212,8 +214,8 @@ export class CityScene extends Phaser.Scene {
         );
 
         enemy.speed(new Phaser.Math.Vector2(
-            Math.floor(Math.random() * Enemy.HORIZONTAL_SPEED * 1.2),
-            Math.floor(Math.random() * Enemy.VERTICAL_SPEED * 1.2),
+            Phaser.Math.Between(Enemy.HORIZONTAL_SPEED * 0.2, Enemy.HORIZONTAL_SPEED * 1.2),
+            Phaser.Math.Between(Enemy.VERTICAL_SPEED * 0.2, Enemy.VERTICAL_SPEED * 1.2)
         ));
 
         this.enemies.push(enemy);
@@ -226,13 +228,13 @@ export class CityScene extends Phaser.Scene {
 
         if(enemyPhysicsBody.velocity.y <= 0) {
             const randomVerticalSpeed: number = 
-                Math.max(Math.floor(Math.random() * Enemy.VERTICAL_SPEED) + Enemy.VERTICAL_SPEED/2, Enemy.VERTICAL_SPEED/2);
+                Phaser.Math.Between(Enemy.VERTICAL_SPEED * 0.2, Enemy.VERTICAL_SPEED * 1.20);
 
             enemyPhysicsBody.velocity.y = randomVerticalSpeed;
 
             if (Math.random() >= 0.45) {
                 const randomHorizontalSpeed: number = 
-                    Math.min(Math.floor(Math.random() * enemyPhysicsBody.velocity.x) + Enemy.HORIZONTAL_SPEED/2, Enemy.HORIZONTAL_SPEED);
+                    Phaser.Math.Between(Enemy.HORIZONTAL_SPEED * 0.2, Enemy.HORIZONTAL_SPEED * 1.5);
 
                 enemyPhysicsBody.velocity.x = -randomHorizontalSpeed;
             }
@@ -283,6 +285,11 @@ export class CityScene extends Phaser.Scene {
     private killEnemy(enemy: Enemy): void {
         enemy.kill(this.time.now);
         this.score.enemyKilled(enemy.enemyType());
+
+        if (this.score.noFearRemaining()) {
+            this.scene.stop('CityScene');
+            this.scene.start('WinGameScene', {'score': this.score});
+        }
     }
 
     update(time, delta): void {
@@ -302,8 +309,6 @@ export class CityScene extends Phaser.Scene {
     }
 
     public createBullet(): void {
-        let bullet: Phaser.GameObjects.Sprite;
-
         if (this.mainCharacter.facing() === this.mainCharacter.FACING_RIGHT) {
             this.addBullet(
                 'bullet', 

@@ -1,6 +1,7 @@
 import 'phaser';
 import { WelcomeScene } from './scenes/welcomeScene';
 import { CityScene } from './scenes/cityScene';
+import { WinGameScene } from './scenes/winGameScene';
 
 const renderConfig: RenderConfig = {
     pixelArt: true,
@@ -21,7 +22,7 @@ const config: GameConfig = {
         }
     },
     render: renderConfig,
-    scene: [CityScene],
+    scene: [CityScene, WinGameScene],
     fps: {
         target: 16
     }

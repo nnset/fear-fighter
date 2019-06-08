@@ -1,14 +1,15 @@
 export class FearCounter {
 
-    readonly INITIAL_FEAR = 10000;
+    static INITIAL_FEAR = 7000;
+    
     readonly DECREASE_STEP = 100;
-    readonly INCREASE_STEP = 300;
+    readonly INCREASE_STEP = 200;
 
     private currentFear: number;
     
 
-    constructor() {
-        this.currentFear = this.INITIAL_FEAR;
+    constructor(initialFear: number) {
+        this.currentFear = initialFear;
     }
 
     public current(): number {
@@ -31,7 +32,7 @@ export class FearCounter {
      */
     public increase(): number {
 
-        if (this.currentFear < this.INITIAL_FEAR && this.currentFear + this.INCREASE_STEP <= this.INITIAL_FEAR) {
+        if (this.currentFear < FearCounter.INITIAL_FEAR && this.currentFear + this.INCREASE_STEP <= FearCounter.INITIAL_FEAR) {
             this.currentFear += this.INCREASE_STEP;
         }      
 
@@ -39,6 +40,10 @@ export class FearCounter {
     }
 
     public progress(): number {
-        return this.currentFear/this.INITIAL_FEAR;
+        return this.currentFear/FearCounter.INITIAL_FEAR;
+    }
+
+    public noFearRemain(): boolean {
+        return this.currentFear <= 0
     }
 };

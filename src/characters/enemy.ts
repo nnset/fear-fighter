@@ -48,7 +48,7 @@ export class Enemy extends Phaser.GameObjects.GameObject {
         this.name = 'enemy';
         this.id = id;
         this.killedAt = 0;
-        this.disapearTime = Math.floor(Math.random() * 8000) + 1500;
+        this.disapearTime = Phaser.Math.Between(2500, 15000);
 
         this.animations = [
             {key: this.skin+Enemy.IDLE,  assetKey: Enemy.IDLE, repeat: -1, frameRate: this.frameRate, frameWidth: 50, frameHeight: 50},

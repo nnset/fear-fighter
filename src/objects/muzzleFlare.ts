@@ -47,11 +47,15 @@ export class MuzzleFlare extends Phaser.GameObjects.GameObject {
         this.sprite.anims.load('regularMuzzleFlare');
     }
 
-    public show(x: number, y:number, orientation: number = this.FACING_RIGHT): void {
+    public show(x: number, y:number, orientation: number = this.FACING_RIGHT, currentPositionScale: number): void {
         this.sprite.visible = true;
 
-        if (orientation != this.facingTo) {
-            this.sprite.scaleX *= -1;
+        this.sprite.setScale(Math.min(1.10, currentPositionScale * this.scale));
+
+        this.sprite.flipX = false;
+
+        if (orientation === this.FACING_LEFT) {
+            this.sprite.flipX = true;
         }
 
         this.facingTo = orientation;

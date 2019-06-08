@@ -53,7 +53,7 @@ export class MainCharacter extends Phaser.GameObjects.GameObject {
             {key: this.RUN, repeat: -1 , frameRate: this.frameRate, frameWidth: 50, frameHeight : 50},
         ];
 
-        this.regularMuzzleFlare = new MuzzleFlare(this.scene, 0, 0, this.scale * 0.75);
+        this.regularMuzzleFlare = new MuzzleFlare(this.scene, 0, 0, this.scale * 0.5);
         this.name = 'mainCharacter';
     }
 
@@ -117,11 +117,11 @@ export class MainCharacter extends Phaser.GameObjects.GameObject {
     }
 
     public bulletOrigin(): Vector2Like {
-        let bulletX: number = this.position().x +10;
-        let bulletY: number = this.position().y + 10;
+        let bulletX: number = this.position().x + 10 * this.bulletOffsetAccordingPosition();
+        let bulletY: number = this.position().y + 10 * this.bulletOffsetAccordingPosition();
 
         if (this.facingTo === this.FACING_RIGHT) {
-            bulletX += 25;
+            bulletX += 25 * this.bulletOffsetAccordingPosition();
         }
 
         return {
@@ -164,16 +164,21 @@ export class MainCharacter extends Phaser.GameObjects.GameObject {
             this.stop();
 
             this.animationState = this.SHOOT;
-            let muzzleFlareX = this.position().x + 20;
+            let muzzleFlareX = this.position().x + 20 * this.bulletOffsetAccordingPosition();
             
             if (this.facingTo === this.FACING_LEFT) {
-               muzzleFlareX = this.position().x + 5;
+               muzzleFlareX = this.position().x + 5 * this.bulletOffsetAccordingPosition();
             }
 
             this.sprite.anims.play(this.SHOOT);
 
-            this.regularMuzzleFlare.show(muzzleFlareX, this.position().y + 5, this.facingTo);
-            
+            this.regularMuzzleFlare.show(
+                muzzleFlareX, 
+                this.position().y + 5 * this.bulletOffsetAccordingPosition(), 
+                this.facingTo,
+                this.scaleAccordingPosition()
+            );
+
             return true;
         }
 
@@ -265,7 +270,15 @@ export class MainCharacter extends Phaser.GameObjects.GameObject {
             this.sprite.setTint(undefined);
         }
 
-        this.sprite.setScale(Math.min(this.scale * 1.10, this.scale * (this.position().y / 500)));
+        this.sprite.setScale(this.scaleAccordingPosition());
+    }
+
+    private scaleAccordingPosition(): number {
+        return Math.min(this.scale * 1.10, this.scale * (this.position().y / 500));
+    }
+
+    private bulletOffsetAccordingPosition(): number {
+        return this.position().y / 500;
     }
 };
 

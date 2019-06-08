@@ -21,7 +21,7 @@ export class Score {
         this.beingDifferentKilled = 0;
         this.publicSpeakingKilled = 0;
         this.shootsFired = 0;
-        this.fearCounter = new FearCounter();
+        this.fearCounter = new FearCounter(FearCounter.INITIAL_FEAR);
     }
 
     public enemyKilled(enemyType: string): number {
@@ -77,5 +77,9 @@ export class Score {
 
     public fearProgress(): number {
         return this.fearCounter.progress();
+    }
+
+    public noFearRemaining(): boolean {
+        return this.fearCounter.noFearRemain();
     }
 };
