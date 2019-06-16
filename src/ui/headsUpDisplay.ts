@@ -17,7 +17,7 @@ export class HUD extends Phaser.GameObjects.Container {
     }
 
     preload(): void {
-        this.scene.load.image('fear-bar', 'assets/Ui/fear-bar.jpg');
+        
     }
 
     create(): void {

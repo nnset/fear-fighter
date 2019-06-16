@@ -33,12 +33,13 @@ export class CityScene extends Phaser.Scene {
     }
 
     init(params): void {
-
+        this.scene.remove('WelcomeScene');
     }
 
     preload(): void {
         this.enemiesCreatedCounter = 0;
         this.load.setBaseURL('http://fearfighter.nnset.com/');
+        /*
         this.load.image('city', 'assets/Scenes/city.jpg');
         this.load.image('bullet', 'assets/Objects/bullet.png');
         this.load.image('bullet-left', 'assets/Objects/bullet-left.png');
@@ -47,9 +48,9 @@ export class CityScene extends Phaser.Scene {
         new Enemy(this, Enemy.TYPE_BEING_DIFFERENT, 120, 475).preload();
         new Enemy(this, Enemy.TYPE_FEAR_OF_PUBLIC_SPEAKING, 120, 475).preload();
 
-        this.mainCharacter = new MainCharacter(this, 500, 450, 2);
+        
         this.mainCharacter.preload();
-
+*/
         this.hud = new HUD(this, 0, 0, this.score);
         this.hud.preload();  
         this.generateEnemiesSpawnCoordinates();
@@ -177,6 +178,7 @@ export class CityScene extends Phaser.Scene {
     }
 
     private createMainCharacter(): void {
+        this.mainCharacter = new MainCharacter(this, 500, 450, 2);
         this.mainCharacter.create();
 
         this.physics.add.collider(this.mainCharacterSceneTopBoundary, this.mainCharacter.cameraObjective());

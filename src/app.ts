@@ -2,6 +2,8 @@ import 'phaser';
 import { WelcomeScene } from './scenes/welcomeScene';
 import { CityScene } from './scenes/cityScene';
 import { WinGameScene } from './scenes/winGameScene';
+import { LoadingScene } from './scenes/loadingScene';
+import { GameConfig } from './gameConfig';
 
 const renderConfig: RenderConfig = {
     pixelArt: true,
@@ -9,22 +11,22 @@ const renderConfig: RenderConfig = {
 }
 
 const config: GameConfig = {
-    title: 'FearFighter',
-    width: 1211,
-    height: 667,
+    title: GameConfig.GAME_TITLE,
+    width: GameConfig.GAME_WIDTH,
+    height: GameConfig.GAME_HEIGHT,
     parent: 'game',
-    backgroundColor: '#18216D',
+    backgroundColor: GameConfig.BACKGROUND_COLOR,
     zoom: 1,
     physics: {
         default: 'arcade',
         arcade: {
-            debug: true
+            debug: false
         }
     },
     render: renderConfig,
-    scene: [CityScene, WinGameScene],
+    scene: [LoadingScene, WelcomeScene, CityScene, WinGameScene],
     fps: {
-        target: 16
+        target: GameConfig.GAME_FPS
     }
 };
 

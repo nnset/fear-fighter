@@ -10,9 +10,10 @@ import { GameObjects } from "phaser";
  */
 export class MainCharacter extends Phaser.GameObjects.GameObject {
     static readonly TIME_BETWEEN_HITS = 2000;
-    readonly IDLE = 'idle';
+    static readonly SHOOT = 'shoot';
+    static readonly IDLE = 'idle';
     readonly DEATH = 'death';
-    readonly SHOOT = 'shoot';
+    
     readonly RUN = 'run';
     readonly VERTICAL_SPEED = 200;
     readonly HORIZONTAL_SPEED = 200;
@@ -41,15 +42,15 @@ export class MainCharacter extends Phaser.GameObjects.GameObject {
         this.initialX = x;
         this.initialY = y;
         this.scale = scale;
-        this.animationState = this.IDLE;
+        this.animationState = MainCharacter.IDLE;
         this.frameRate = frameRate;
         this.facingTo = this.FACING_RIGHT;
         this.lastHit = 0;
 
         this.animations = [
-            {key: this.IDLE, repeat: -1, frameRate: this.frameRate, frameWidth: 50, frameHeight : 50},
+            {key: MainCharacter.IDLE, repeat: -1, frameRate: this.frameRate, frameWidth: 50, frameHeight : 50},
             {key: this.DEATH, repeat: 0, frameRate: this.frameRate, frameWidth: 140, frameHeight : 80},
-            {key: this.SHOOT, repeat: 0, frameRate: this.frameRate * 2, frameWidth: 50, frameHeight : 50},
+            {key: MainCharacter.SHOOT, repeat: 0, frameRate: this.frameRate * 2, frameWidth: 50, frameHeight : 50},
             {key: this.RUN, repeat: -1 , frameRate: this.frameRate, frameWidth: 50, frameHeight : 50},
         ];
 
@@ -70,7 +71,7 @@ export class MainCharacter extends Phaser.GameObjects.GameObject {
     }
 
     public create(): void {
-        this.sprite = this.scene.add.sprite(this.initialX, this.initialY, this.IDLE, 0).setScale(this.scale);
+        this.sprite = this.scene.add.sprite(this.initialX, this.initialY, MainCharacter.IDLE, 0).setScale(this.scale);
         this.sprite.setName(this.name);
 
         this.scene.physics.world.enable(this.sprite);
@@ -83,7 +84,7 @@ export class MainCharacter extends Phaser.GameObjects.GameObject {
         this.spritePhysicsBody().height *= this.scale;
 
         this.createAnimations();
-        this.sprite.anims.play(this.IDLE);
+        this.sprite.anims.play(MainCharacter.IDLE);
 
         this.regularMuzzleFlare.create();
     }
@@ -158,19 +159,19 @@ export class MainCharacter extends Phaser.GameObjects.GameObject {
             return false;
         }
 
-        this.animationState = this.IDLE;
+        this.animationState = MainCharacter.IDLE;
 
-        if (this.animationState != this.SHOOT) {
+        if (this.animationState != MainCharacter.SHOOT) {
             this.stop();
 
-            this.animationState = this.SHOOT;
+            this.animationState = MainCharacter.SHOOT;
             let muzzleFlareX = this.position().x + 20 * this.bulletOffsetAccordingPosition();
             
             if (this.facingTo === this.FACING_LEFT) {
                muzzleFlareX = this.position().x + 5 * this.bulletOffsetAccordingPosition();
             }
 
-            this.sprite.anims.play(this.SHOOT);
+            this.sprite.anims.play(MainCharacter.SHOOT);
 
             this.regularMuzzleFlare.show(
                 muzzleFlareX, 
@@ -186,7 +187,7 @@ export class MainCharacter extends Phaser.GameObjects.GameObject {
     }
 
     private shootInProgress(): boolean {
-        return this.sprite.anims.currentAnim.key === this.SHOOT &&
+        return this.sprite.anims.currentAnim.key === MainCharacter.SHOOT &&
                this.sprite.anims.isPlaying === true;
     }
 
@@ -206,9 +207,9 @@ export class MainCharacter extends Phaser.GameObjects.GameObject {
             return;
         }
         
-        if (this.animationState != this.IDLE) {
-            this.animationState = this.IDLE;
-            this.sprite.anims.play(this.IDLE);
+        if (this.animationState != MainCharacter.IDLE) {
+            this.animationState = MainCharacter.IDLE;
+            this.sprite.anims.play(MainCharacter.IDLE);
         }
 
         this.stop();
